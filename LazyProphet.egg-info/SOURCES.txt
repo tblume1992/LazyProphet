@@ -1,0 +1,8 @@
+LICENSE
+LazyProphet.py
+README.md
+setup.py
+LazyProphet.egg-info/PKG-INFO
+LazyProphet.egg-info/SOURCES.txt
+LazyProphet.egg-info/dependency_links.txt
+LazyProphet.egg-info/top_level.txt
