@@ -58,12 +58,15 @@ boosting_params = {
                         'num_iterations': 50
                     }
 ```
+*WARNING* 
+Passing linear_tree=True can be extremely unstable, especially with ar and n_basis arguments. We do tests for linearity and will de-trend if necessary.
+**
 
-Most importantly controlling the num_leaves/learning_rate for complexity with less data.
+Most importantly for controlling the complexity by using num_leaves/learning_rate for complexity with less data.
 
-Alternatively, you could try out a method:
+Alternatively, you could try out the method:
 
 ```
-tree_optimize(self, y, exogenous=None, cv_splits=3, test_size=None)
+tree_optimize(y, exogenous=None, cv_splits=3, test_size=None)
 ```
 In-place of the fit method.  This will do 'cv_splits' number of Time-Series Cross-Validation steps to optimize the tree using Optuna. This method has some degraded performance in testing but may be better for autoforecasting various types of data sizes.
