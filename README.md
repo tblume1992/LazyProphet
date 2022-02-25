@@ -13,7 +13,7 @@ Don't ever use in-sample fit for these types of models as they fit the data quit
 pip install LazyProphet
 ```
 
-Simple example from Sklearn:
+Simple example from Sklearn, just give it the hyperparameters and an array:
 
 ```
 from LazyProphet import LazyProphet as lp
@@ -39,3 +39,31 @@ plt.axvline(400)
 plt.show()
 ```
 ![alt text](https://github.com/tblume1992/LazyProphet/blob/main/LazyProphet/static/example_output.png "Output 1")
+
+If you are working with less data or then you will probably want to pass custom LightGBM params via boosting_params when creating the LazyProphet obj.
+
+The default params are:
+
+```
+boosting_params = {
+                        "objective": "regression",
+                        "metric": "rmse",
+                        "verbosity": -1,
+                        "boosting_type": "gbdt",
+                        "seed": 42,
+                        'linear_tree': False,
+                        'learning_rate': .15,
+                        'min_child_samples': 5,
+                        'num_leaves': 31,
+                        'num_iterations': 50
+                    }
+```
+
+Most importantly controlling the num_leaves/learning_rate for complexity with less data.
+
+Alternatively, you could try out a method:
+
+```
+tree_optimize(self, y, exogenous=None, cv_splits=3, test_size=None)
+```
+In-place of the fit method.  This will do 'cv_splits' number of Time-Series Cross-Validation steps to optimize the tree using Optuna. This method has some degraded performance in testing but may be better for autoforecasting various types of data sizes.
