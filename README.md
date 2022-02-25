@@ -38,4 +38,4 @@ plt.plot(np.append(fitted, predicted))
 plt.axvline(400)
 plt.show()
 ```
-![alt text](https://github.com/tblume1992/LazyProphet/blob/main/static/example_output.png?raw=true "Output 1")
+![alt text](https://github.com/tblume1992/LazyProphet/blob/main/LazyProphet/static/example_output.png "Output 1")
