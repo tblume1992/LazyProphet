@@ -2,21 +2,24 @@
 """
 Created on Sat Feb 12 08:19:32 2022
 
-@author: Tyler Blume
+@author: ER90614
 """
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import TimeSeriesSplit
+import matplotlib.pyplot as plt
+import seaborn as sns
 import optuna.integration.lightgbm as lgb
 import optuna
 from scipy import stats
+
 import lightgbm as gbm
 import warnings
 from LazyProphet.LinearBasisFunction import LinearBasisFunction
 from LazyProphet.FourierBasisFunction import FourierBasisFunction
 warnings.filterwarnings("ignore")
-
+sns.set_style('darkgrid')
 
 class LazyProphet:
     
@@ -305,27 +308,4 @@ class LazyProphet:
         if self.linear_trend:
             fitted = np.add(fitted.reshape(-1,1), fitted_trend.reshape(-1,1))
         return fitted
-#%%
-if __name__ == '__main__':
-    #simple example
-    from LazyProphet import LazyProphet as lp
-    from sklearn.datasets import fetch_openml
-    import matplotlib.pyplot as plt
-    
-    bike_sharing = fetch_openml("Bike_Sharing_Demand", version=2, as_frame=True)
-    y = bike_sharing.frame['count']
-    y = y[-400:].values
-    
-    lp_model = lp.LazyProphet(seasonal_period=[24, 168], #list means we use both seasonal periods
-                              n_basis=4,
-                              fourier_order=10,
-                              ar=list(range(1,25)),
-                              decay=.99
-                              )
-    fitted = lp_model.fit(y)
-    predicted = lp_model.predict(100)
-    
-    plt.plot(y)
-    plt.plot(np.append(fitted, predicted))
-    plt.axvline(400)
-    plt.show()
+

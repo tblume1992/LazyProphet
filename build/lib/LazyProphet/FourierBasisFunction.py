@@ -13,6 +13,12 @@ class FourierBasisFunction:
         x = x * t[:, None]
         fourier_series = np.concatenate((np.cos(x), np.sin(x)), axis=1)
         return fourier_series
+        # return np.column_stack([
+        #             fun((2.0 * (i + 1) * np.pi * t / seasonal_period))
+        #             for i in range(self.fourier_order)
+        #             for fun in (np.sin, np.cos)
+        #         ])
+
     
     def get_harmonics(self, y, seasonal_period):
         harmonics = self.get_fourier_series(y, seasonal_period)
