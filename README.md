@@ -25,10 +25,10 @@ y = bike_sharing.frame['count']
 y = y[-400:].values
 
 lp_model = lp.LazyProphet(seasonal_period=[24, 168], #list means we use both seasonal periods
-                          n_basis=4,
+                          n_basis=4, #weighted piecewise basis functions
                           fourier_order=10,
                           ar=list(range(1,25)),
-                          decay=.99
+                          decay=.99 #the 'penalized' in penalized weighted piecewise linear basis functions
                           )
 fitted = lp_model.fit(y)
 predicted = lp_model.predict(100)
