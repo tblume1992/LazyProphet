@@ -13,9 +13,9 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="LazyProphet",
-    version="0.3.3",
+    version="0.3.6",
     author="Tyler Blume",
-    url="https://github.com/tblume1992/ThymeBoost",
+    url="https://github.com/tblume1992/LazyProphet",
     long_description=long_description,
     long_description_content_type="text/markdown",
     description = "Time series forecasting with LightGBM",
