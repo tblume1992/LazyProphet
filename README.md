@@ -1,4 +1,7 @@
 # LazyProphet
+
+[A decent intro can be found here.](https://medium.com/p/3745bafe5ce5)
+
 LazyProphet is a time series forecasting model built for LightGBM forecasting of single time series.
 
 Many nice-ities have been added such as recursive forecasting when using lagged target variable such as the last 4 values to predict the 5th.
