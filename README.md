@@ -1,4 +1,39 @@
-# LazyProphet
+# LazyProphet v0.3.8
+
+## Recent Changes
+
+With v0.3.8 comes a fully fledged Optuna Optimizer for simple (no exogenous) regression problems. Classification is ToDo.
+
+A Quick example of the new functionality:
+
+```
+from LazyProphet import LazyProphet as lp
+from sklearn.datasets import fetch_openml
+import matplotlib.pyplot as plt
+
+bike_sharing = fetch_openml("Bike_Sharing_Demand", version=2, as_frame=True)
+y = bike_sharing.frame['count']
+y = y[-400:].values
+
+lp_model = lp.LazyProphet.Optimize(y,
+                                seasonal_period=[24, 168],
+                                n_folds=2, # must be greater than 1
+                                n_trials=20, # number of optimization runs, default is 100
+                                test_size=48 # size of the holdout set to test against
+                                )
+fitted = lp_model.fit(y)
+predicted = lp_model.predict(100)
+
+plt.plot(y)
+plt.plot(np.append(fitted, predicted))
+plt.axvline(400)
+plt.show()
+```
+
+## Introduction
+
+[A decent intro can be found here.](https://medium.com/p/3745bafe5ce5)
+
 LazyProphet is a time series forecasting model built for LightGBM forecasting of single time series.
 
 Many nice-ities have been added such as recursive forecasting when using lagged target variable such as the last 4 values to predict the 5th.

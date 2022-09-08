@@ -52,7 +52,7 @@ class LinearBasisFunction:
 
     def get_future_basis(self, basis_functions, forecast_horizon, average=False):
         n_components = np.shape(basis_functions)[1]
-        slopes = np.gradient(basis_functions)[0][-1, :]
+        slopes = np.gradient(basis_functions, axis=0)[-1, :]
         future_basis = np.array(np.arange(0, forecast_horizon + 1))
         future_basis += len(basis_functions)
         future_basis = np.transpose([future_basis] * n_components)
@@ -62,17 +62,4 @@ class LinearBasisFunction:
             future_basis = np.transpose([np.mean(future_basis, axis=1)] * n_components)
         return future_basis[1:, :]
 
-    #%%
-if __name__=='__main__':
-    import numpy as np
-    import pandas as pd
-    from matplotlib import pyplot as plt
-    import seaborn as sns
-    sns.set_style("darkgrid")#Airlines Data, if your csv is in a different filepath adjust this
-    df = pd.read_csv(r'C:\Users\er90614\downloads\AirPassengers.csv')
-    df.index = pd.to_datetime(df['Month'])
-    y = df['#Passengers']
-    lbf = LinearBasisFunction(10, decay='auto', weighted=True)
-    basis = lbf.get_basis(y)
-    plt.plot(basis)
 

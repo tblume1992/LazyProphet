@@ -13,7 +13,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="LazyProphet",
-    version="0.3.6",
+    version="0.3.8",
     author="Tyler Blume",
     url="https://github.com/tblume1992/LazyProphet",
     long_description=long_description,

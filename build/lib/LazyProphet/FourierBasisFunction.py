@@ -31,26 +31,3 @@ class FourierBasisFunction:
         else:
             return future_harmonics[len(harmonics):, :] * self.seasonal_weights[-1]
 
-#%%
-if __name__ == '__main__':
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    from ThymeBoost import ThymeBoost as tb
-    
-    sns.set_style('darkgrid')
-    
-    #Here we will just create a random series with seasonality and a slight trend
-    seasonality = ((np.cos(np.arange(1, 101))*10 + 50))
-    seasonality[50:] = seasonality[50:] * 2 - np.mean(seasonality)
-    np.random.seed(100)
-    noise = np.random.normal(0, 1, 100)
-    y = noise + seasonality
-    plt.plot(y)
-    plt.show()
-    fbf = FourierBasisFunction(1)
-    basis = fbf.get_harmonics(y, 25)
-    plt.plot(basis)
-
-    basis = fbf.get_future_harmonics(basis, 100,25)
-    plt.plot(basis)

@@ -6,6 +6,7 @@ Created on Sat Feb 12 08:19:32 2022
 """
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import TimeSeriesSplit
 import optuna.integration.lightgbm as lgb
@@ -13,6 +14,7 @@ import optuna
 from scipy import stats
 import lightgbm as gbm
 import warnings
+from LazyProphet.Optimizer import Optimize
 from LazyProphet.LinearBasisFunction import LinearBasisFunction
 from LazyProphet.FourierBasisFunction import FourierBasisFunction
 warnings.filterwarnings("ignore")
@@ -32,16 +34,24 @@ class LazyProphet:
                  weighted=True,
                  decay_average=False,
                  seasonality_weights=None,
-                 linear_trend=None,
+                 linear_trend='auto',
                  boosting_params=None,
                  series_features=None,
-                 return_proba=False):
+                 return_proba=False,
+                 trend_penalty=True,
+                 n_estimators=50,
+                 num_leaves=31,
+                 learning_rate=.1,
+                 colsample_bytree=1):
         self.objective = objective
+        self.trend_penalty = trend_penalty
         self.exogenous = None
         if seasonal_period is not None:
             if not isinstance(seasonal_period, list):
                 seasonal_period = [seasonal_period]
         self.seasonal_period = seasonal_period
+        # if num_leaves < 2:
+        #     num_leaves = 2
         if objective == 'classification':
             scale = False
             linear_trend = False
@@ -54,9 +64,12 @@ class LazyProphet:
             if not isinstance(ma_windows, list):
                 ma_windows = [ma_windows]
         self.ma_windows = ma_windows
-        self.fourier_order = fourier_order
+        self.fourier_order = int(fourier_order)
         self.decay = decay
-        self.n_basis = n_basis
+        if n_basis:
+            self.n_basis = int(n_basis)
+        else:
+            self.n_basis = None
         self.weighted = weighted
         self.series_features = series_features
         self.component_dict = {}
@@ -70,6 +83,8 @@ class LazyProphet:
         elif self.objective == 'classification':
             metric = 'cross-entropy'
             objective = 'binary'
+        else:
+            metric = 'None'
         if boosting_params is None:
             self.boosting_params = {
                                     "objective": objective,
@@ -78,10 +93,11 @@ class LazyProphet:
                                     "boosting_type": "gbdt",
                                     "seed": 42,
                                     'linear_tree': False,
-                                    'learning_rate': .15,
+                                    'learning_rate': learning_rate,
+                                    'colsample_bytree': colsample_bytree,
                                     'min_child_samples': 5,
-                                    'num_leaves': 31,
-                                    'num_iterations': 50
+                                    'num_leaves': num_leaves,
+                                    'num_iterations': n_estimators
                                 }
         else:
             self.boosting_params = boosting_params
@@ -120,14 +136,14 @@ class LazyProphet:
         return trend_line
 
     def get_piecewise(self, y):
-        self.lbf = LinearBasisFunction(n_changepoints=self.n_basis,
+        self.lbf = LinearBasisFunction(n_changepoints=int(self.n_basis),
                                   decay=self.decay,
                                   weighted=self.weighted)
         basis = self.lbf.get_basis(y)
         return basis
 
     def get_harmonics(self, y, seasonal_period):
-        self.fbf = FourierBasisFunction(self.fourier_order,
+        self.fbf = FourierBasisFunction(int(self.fourier_order),
                                         self.seasonality_weights)
         basis = self.fbf.get_harmonics(y, seasonal_period)
         return basis
@@ -154,7 +170,7 @@ class LazyProphet:
         X = X.reshape((-1, 1))
         if self.n_basis is not None:
             if len(y) <= self.n_basis - 1:
-                self.n_basis = len(y) - 1
+                self.n_basis = int(len(y) - 1)
             self.basis = self.get_piecewise(y)
             X = np.append(X, self.basis, axis=1)
             self.component_dict['basis'] = self.basis
@@ -201,7 +217,7 @@ class LazyProphet:
             self.scale_input(y)
         else:
             self.scaled_y = y.copy()
-        self.X = self.build_input(self.scaled_y)
+        self.X = self.build_input(self.scaled_y, X)
         if self.objective == 'regression':
             self.model_obj = gbm.LGBMRegressor(**self.boosting_params)
         if self.objective == 'classification':
@@ -293,9 +309,31 @@ class LazyProphet:
             linear_trend = np.reshape(linear_trend, (len(linear_trend), 1))
             linear_trend += len(self.scaled_y) + 1
             linear_trend = linear_trend**2
-            linear_trend = np.multiply(linear_trend, self.slope*self.penalty) + self.intercept
+            if self.trend_penalty:
+                slope = self.slope*self.penalty
+            else:
+                slope = self.slope
+            linear_trend = np.multiply(linear_trend, slope) + self.intercept
             predicted = np.add(predicted, linear_trend.reshape(-1,1))
         return predicted
+
+    @classmethod
+    def Optimize(cls, y, seasonal_period, n_folds, n_trials=100, test_size=None):
+        optimizer = Optimize(y,
+                             LazyProphet,
+                             seasonal_period=seasonal_period,
+                             n_trials=n_trials,
+                             n_folds=n_folds,
+                             test_size=test_size)
+        cls.study = optimizer.fit()
+        optimized = cls.study.best_params
+        optimized['ar'] = list(range(1, int(optimized['ar']) + 1))
+        optimized['n_estimators'] = int(optimized['n_estimators'])
+        optimized['num_leaves'] = int(optimized['num_leaves'])
+        optimized['n_basis'] = int(optimized['n_basis'])
+        optimized['seasonal_period'] = optimized['seasonal_period']
+        # optimized['fourier_order'] = int(optimized['fourier_order'])
+        return cls(**optimized)
 
     def init_opt_params(self):
         if self.objective == 'regression':
@@ -315,7 +353,7 @@ class LazyProphet:
         self.init_opt_params()
         if self.n_basis is not None:
             if len(y) <= self.n_basis - 1:
-                self.n_basis = len(y) - 1
+                self.n_basis = int(len(y) - 1)
         self.exogenous = exogenous
         y = np.array(y)
         self.og_y = y
@@ -355,4 +393,8 @@ class LazyProphet:
         if self.linear_trend:
             fitted = np.add(fitted.reshape(-1,1), fitted_trend.reshape(-1,1))
         return fitted
+
+
+
+
 
