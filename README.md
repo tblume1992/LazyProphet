@@ -1,6 +1,6 @@
 # LazyProphet v0.3.8
 
-![alt text](https://github.com/tblume1992/LazyProphet/blob/main/LazyProphet/static/lp_logo.png "logo"){ width="200" height="200" style="display: block; margin: 0 auto" }
+![alt text](https://github.com/tblume1992/LazyProphet/blob/main/LazyProphet/static/lp_logo.png "logo")
 
 ## Recent Changes
 
