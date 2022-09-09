@@ -1,6 +1,6 @@
 # LazyProphet v0.3.8
 
-![alt text](https://github.com/tblume1992/LazyProphet/blob/main/LazyProphet/static/lazyprophet_logo.png "logo")
+![alt text](https://github.com/tblume1992/LazyProphet/blob/main/LazyProphet/static/lp_logo.png "logo")
 
 ## Recent Changes
 
