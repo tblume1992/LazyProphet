@@ -1,5 +1,7 @@
 # LazyProphet v0.3.8
 
+![alt text](https://github.com/tblume1992/LazyProphet/blob/main/LazyProphet/static/lazyprophet_logo.png "logo")
+
 ## Recent Changes
 
 With v0.3.8 comes a fully fledged Optuna Optimizer for simple (no exogenous) regression problems. Classification is ToDo.
